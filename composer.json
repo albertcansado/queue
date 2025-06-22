@@ -61,14 +61,9 @@
         ],
         "cs-check": "phpcs --colors -p src/ tests/",
         "cs-fix": "phpcbf --colors -p src/ tests/",
-        "stan": [
-            "@phpstan",
-            "@psalm"
-        ],
+        "stan": "@phpstan",
         "phpstan": "tools/phpstan analyse",
-        "psalm": "tools/psalm --show-info=false",
         "stan-baseline": "tools/phpstan --generate-baseline",
-        "psalm-baseline": "tools/psalm  --set-baseline=psalm-baseline.xml",
         "stan-setup": "phive install",
         "test": "phpunit",
         "test-coverage": "phpunit --coverage-clover=clover.xml"

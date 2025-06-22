@@ -228,7 +228,6 @@ class QueueManager
 
         $logger = $config['logger'] ? Log::engine($config['logger']) : null;
 
-        /** @psalm-suppress InvalidPropertyFetch */
         if (!empty($class::$shouldBeUnique)) {
             if (empty($config['uniqueCache'])) {
                 throw new InvalidArgumentException(
@@ -277,7 +276,6 @@ class QueueManager
         $client = static::engine($name);
         $client->sendEvent($queue, $message);
 
-        /** @psalm-suppress InvalidPropertyFetch */
         if (!empty($class::$shouldBeUnique)) {
             $uniqueId = static::getUniqueId($class, $method, $data);
 
