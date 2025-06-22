@@ -231,7 +231,7 @@ class QueueManager
         if (!empty($class::$shouldBeUnique)) {
             if (empty($config['uniqueCache'])) {
                 throw new InvalidArgumentException(
-                    "$class::\$shouldBeUnique is set to `true` but `uniqueCache` configuration is missing."
+                    "$class::\$shouldBeUnique is set to `true` but `uniqueCache` configuration is missing.",
                 );
             }
 
@@ -240,7 +240,7 @@ class QueueManager
             if (Cache::read($uniqueId, $config['uniqueCacheKey'])) {
                 if ($logger) {
                     $logger->debug(
-                        "An identical instance of $class already exists on the queue. This push will be ignored."
+                        "An identical instance of $class already exists on the queue. This push will be ignored.",
                     );
                 }
 
