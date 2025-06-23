@@ -76,7 +76,7 @@ class FailedJobsListenerTest extends TestCase
         $event = new Event(
             'Consumption.LimitAttemptsExtension.failed',
             $message,
-            ['exception' => 'some message']
+            ['exception' => 'some message'],
         );
 
         /** @var \Cake\Queue\Model\Table\FailedJobsTable $failedJobsTable */
@@ -160,7 +160,7 @@ class FailedJobsListenerTest extends TestCase
         $event = new Event(
             'Consumption.LimitAttemptsExtension.failed',
             $message,
-            $eventData
+            $eventData,
         );
 
         $this->expectException(RuntimeException::class);

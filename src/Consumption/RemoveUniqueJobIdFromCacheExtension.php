@@ -39,7 +39,6 @@ class RemoveUniqueJobIdFromCacheExtension implements MessageResultExtensionInter
 
         [$class, $method] = $jobMessage->getTarget();
 
-        /** @psalm-suppress InvalidPropertyFetch */
         if (empty($class::$shouldBeUnique)) {
             return;
         }
