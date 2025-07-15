@@ -37,7 +37,6 @@ use Enqueue\Consumption\ExtensionInterface;
 use Interop\Queue\Processor as InteropProcessor;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
-use RuntimeException;
 
 /**
  * Worker command.
