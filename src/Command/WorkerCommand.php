@@ -34,6 +34,7 @@ use Enqueue\Consumption\ChainExtension;
 use Enqueue\Consumption\Extension\LimitConsumptionTimeExtension;
 use Enqueue\Consumption\Extension\LoggerExtension;
 use Enqueue\Consumption\ExtensionInterface;
+use Interop\Queue\Processor as InteropProcessor;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
@@ -171,6 +172,34 @@ class WorkerCommand extends Command
     }
 
     /**
+     * Creates and returns a Processor object
+     *
+     * @param \Cake\Console\Arguments $args Arguments
+     * @param \Cake\Console\ConsoleIo $io ConsoleIo
+     * @param \Psr\Log\LoggerInterface $logger Logger instance
+     * @return \Interop\Queue\Processor
+     */
+    protected function getProcessor(Arguments $args, ConsoleIo $io, LoggerInterface $logger): InteropProcessor
+    {
+        $configKey = (string)$args->getOption('config');
+        $config = QueueManager::getConfig($configKey);
+
+        $processorClass = $config['processor'] ?? Processor::class;
+
+        if (!class_exists($processorClass)) {
+            $io->error(sprintf(sprintf('Processor class %s not found', $processorClass)));
+            $this->abort();
+        }
+
+        if (!is_subclass_of($processorClass, InteropProcessor::class)) {
+            $io->error(sprintf(sprintf('Processor class %s must implement Interop\Queue\Processor', $processorClass)));
+            $this->abort();
+        }
+
+        return new $processorClass($logger, $this->container);
+    }
+
+    /**
      * @param \Cake\Console\Arguments $args Arguments
      * @param \Cake\Console\ConsoleIo $io ConsoleIo
      * @return int
@@ -184,7 +213,7 @@ class WorkerCommand extends Command
         }
 
         $logger = $this->getLogger($args);
-        $processor = new Processor($logger, $this->container);
+        $processor = $this->getProcessor($args, $io, $logger);
         $extension = $this->getQueueExtension($args, $logger);
 
         $hasListener = Configure::check(sprintf('Queue.%s.listener', $config));
@@ -197,7 +226,10 @@ class WorkerCommand extends Command
 
             /** @var \Cake\Event\EventListenerInterface $listener */
             $listener = new $listenerClassName();
-            $processor->getEventManager()->on($listener);
+
+            if ($processor instanceof Processor) {
+                $processor->getEventManager()->on($listener);
+            }
         }
         $client = QueueManager::engine($config);
         $queue = $args->getOption('queue')
