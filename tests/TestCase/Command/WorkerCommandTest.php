@@ -21,6 +21,7 @@ use Cake\Core\Configure;
 use Cake\Log\Log;
 use Cake\Queue\QueueManager;
 use Cake\Queue\Test\test_app\src\Job\LogToDebugWithServiceJob;
+use Cake\Queue\Test\test_app\src\Queue\TestCustomProcessor;
 use Cake\Queue\Test\TestCase\DebugLogTrait;
 use Cake\TestSuite\TestCase;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -310,5 +311,135 @@ class WorkerCommandTest extends TestCase
         $this->exec('queue worker --max-jobs=1 --logger=debug --verbose');
 
         $this->assertDebugLogContains('Consumption has started');
+    }
+
+    /**
+     * Test that queue uses default processor when no processor is specified.
+     *
+     * @runInSeparateProcess
+     */
+    public function testQueueUsesDefaultProcessor()
+    {
+        $config = [
+            'queue' => 'default',
+            'url' => 'file:///' . TMP . DS . 'queue',
+            'receiveTimeout' => 100,
+        ];
+        Configure::write('Queue', ['default' => $config]);
+
+        Log::setConfig('debug', [
+            'className' => 'Array',
+            'levels' => ['notice', 'info', 'debug'],
+        ]);
+
+        QueueManager::setConfig('default', $config);
+        QueueManager::push(LogToDebugJob::class);
+        QueueManager::drop('default');
+
+        $this->exec('queue worker --max-jobs=1 --logger=debug --verbose');
+
+        $this->assertDebugLogContains('Debug job was run');
+    }
+
+    /**
+     * Test that queue uses custom processor when specified in configuration.
+     *
+     * @runInSeparateProcess
+     */
+    public function testQueueUsesCustomProcessor()
+    {
+        $config = [
+            'queue' => 'default',
+            'url' => 'file:///' . TMP . DS . 'queue',
+            'receiveTimeout' => 100,
+            'processor' => TestCustomProcessor::class,
+        ];
+        Configure::write('Queue', ['default' => $config]);
+
+        Log::setConfig('debug', [
+            'className' => 'Array',
+            'levels' => ['notice', 'info', 'debug'],
+        ]);
+
+        QueueManager::setConfig('default', $config);
+        QueueManager::push(LogToDebugJob::class);
+        QueueManager::drop('default');
+
+        $this->exec('queue worker --max-jobs=1 --logger=debug --verbose');
+
+        $this->assertDebugLogContains('Debug job was run');
+        $this->assertDebugLogContains('TestCustomProcessor processing message');
+        $this->assertDebugLogContains('Message processed successfully by TestCustomProcessor');
+    }
+
+    /**
+     * Test that queue aborts when custom processor class does not exist.
+     *
+     * @runInSeparateProcess
+     */
+    public function testQueueAbortsWithNonExistentProcessor()
+    {
+        $config = [
+            'queue' => 'default',
+            'url' => 'file:///' . TMP . DS . 'queue',
+            'receiveTimeout' => 100,
+            'processor' => 'NonExistentProcessor',
+        ];
+        Configure::write('Queue', ['default' => $config]);
+
+        $this->exec('queue worker --max-runtime=0');
+
+        $this->assertErrorContains('Processor class NonExistentProcessor not found');
+    }
+
+    /**
+     * Test that queue aborts when custom processor does not implement Interop\Queue\Processor.
+     *
+     * @runInSeparateProcess
+     */
+    public function testQueueAbortsWithInvalidProcessor()
+    {
+        $config = [
+            'queue' => 'default',
+            'url' => 'file:///' . TMP . DS . 'queue',
+            'receiveTimeout' => 100,
+            'processor' => 'stdClass',
+        ];
+        Configure::write('Queue', ['default' => $config]);
+
+        $this->exec('queue worker --max-runtime=0');
+
+        $this->assertErrorContains('Processor class stdClass must implement Interop\Queue\Processor');
+    }
+
+    /**
+     * Test that custom processor works with listener configuration.
+     *
+     * @runInSeparateProcess
+     */
+    public function testCustomProcessorWithListener()
+    {
+        $config = [
+            'queue' => 'default',
+            'url' => 'file:///' . TMP . DS . 'queue',
+            'receiveTimeout' => 100,
+            'processor' => TestCustomProcessor::class,
+            'listener' => WelcomeMailerListener::class,
+        ];
+        Configure::write('Queue', ['default' => $config]);
+
+        Log::setConfig('debug', [
+            'className' => 'Array',
+            'levels' => ['notice', 'info', 'debug'],
+        ]);
+
+        QueueManager::setConfig('default', $config);
+        QueueManager::push(LogToDebugJob::class);
+        QueueManager::drop('default');
+
+        $this->exec('queue worker --max-jobs=1 --logger=debug --verbose');
+
+        $this->assertDebugLogContains('Debug job was run');
+        $this->assertDebugLogContains('TestCustomProcessor processing message');
     }
 }

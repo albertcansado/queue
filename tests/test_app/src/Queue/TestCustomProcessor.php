@@ -1,20 +1,7 @@
 <?php
 declare(strict_types=1);
 
-/**
- * CakePHP(tm) : Rapid Development Framework (https://cakephp.org)
- * Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org/)
- *
- * Licensed under The MIT License
- * For full copyright and license information, please see the LICENSE.txt
- * Redistributions of files must retain the above copyright notice.
- *
- * @copyright     Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org/)
- * @link          https://cakephp.org CakePHP(tm) Project
- * @since         0.1.0
- * @license       https://opensource.org/licenses/MIT MIT License
- */
-namespace Cake\Queue\Queue;
+namespace Cake\Queue\Test\test_app\src\Queue;
 
 use Cake\Core\ContainerInterface;
 use Cake\Event\EventDispatcherTrait;
@@ -29,11 +16,14 @@ use Psr\Log\NullLogger;
 use RuntimeException;
 use Throwable;
 
-class Processor implements InteropProcessor
+/**
+ * Test Custom Processor
+ *
+ * A custom processor for testing the configurable processor functionality.
+ * Implements Interop\Queue\Processor to provide custom message processing behavior.
+ */
+class TestCustomProcessor implements InteropProcessor
 {
-    /**
-     * @use \Cake\Event\EventDispatcherTrait<\Cake\Queue\Queue\Processor>
-     */
     use EventDispatcherTrait;
 
     /**
@@ -47,9 +37,9 @@ class Processor implements InteropProcessor
     protected ?ContainerInterface $container = null;
 
     /**
-     * Processor constructor
+     * Constructor
      *
-     * @param \Psr\Log\LoggerInterface|null $logger Logger instance.
+     * @param \Psr\Log\LoggerInterface|null $logger Logger instance
      * @param \Cake\Core\ContainerInterface|null $container DI container instance
      */
     public function __construct(?LoggerInterface $logger = null, ?ContainerInterface $container = null)
@@ -59,15 +49,15 @@ class Processor implements InteropProcessor
     }
 
     /**
-     * The method processes messages
+     * Process a message from the queue
      *
-     * @param \Interop\Queue\Message $message Message.
-     * @param \Interop\Queue\Context $context Context.
-     * @return object|string with __toString method implemented
+     * @param \Interop\Queue\Message $message The queue message
+     * @param \Interop\Queue\Context $context The queue context
+     * @return string|object Processing result
      */
     public function process(QueueMessage $message, Context $context): string|object
     {
-        $this->dispatchEvent('Processor.message.seen', ['queueMessage' => $message]);
+        $this->logger->debug('TestCustomProcessor processing message');
 
         $jobMessage = new Message($message, $context, $this->container);
         try {
@@ -79,7 +69,6 @@ class Processor implements InteropProcessor
             return InteropProcessor::REJECT;
         }
 
-        $startTime = microtime(true) * 1000;
         $this->dispatchEvent('Processor.message.start', ['message' => $jobMessage]);
 
         try {
@@ -91,46 +80,36 @@ class Processor implements InteropProcessor
             $this->dispatchEvent('Processor.message.exception', [
                 'message' => $jobMessage,
                 'exception' => $e,
-                'duration' => (int)((microtime(true) * 1000) - $startTime),
             ]);
 
             return Result::requeue('Exception occurred while processing message');
         }
 
-        $duration = (int)((microtime(true) * 1000) - $startTime);
-
         if ($response === InteropProcessor::ACK) {
-            $this->logger->debug('Message processed successfully');
-            $this->dispatchEvent('Processor.message.success', [
-                'message' => $jobMessage,
-                'duration' => $duration,
-            ]);
+            $this->logger->debug('Message processed successfully by TestCustomProcessor');
+            $this->dispatchEvent('Processor.message.success', ['message' => $jobMessage]);
 
             return InteropProcessor::ACK;
         }
 
         if ($response === InteropProcessor::REJECT) {
-            $this->logger->debug('Message processed with rejection');
-            $this->dispatchEvent('Processor.message.reject', [
-                'message' => $jobMessage,
-                'duration' => $duration,
-            ]);
+            $this->logger->debug('Message processed with rejection by TestCustomProcessor');
+            $this->dispatchEvent('Processor.message.reject', ['message' => $jobMessage]);
 
             return InteropProcessor::REJECT;
         }
 
-        $this->logger->debug('Message processed with failure, requeuing');
-        $this->dispatchEvent('Processor.message.failure', [
-            'message' => $jobMessage,
-            'duration' => $duration,
-        ]);
+        $this->logger->debug('Message processed with failure, requeuing by TestCustomProcessor');
+        $this->dispatchEvent('Processor.message.failure', ['message' => $jobMessage]);
 
         return InteropProcessor::REQUEUE;
     }
 
     /**
-     * @param \Cake\Queue\Job\Message $message Message.
-     * @return object|string with __toString method implemented
+     * Process the job message and return the result
+     *
+     * @param \Cake\Queue\Job\Message $message The job message
+     * @return string|object Processing result
      */
     public function processMessage(Message $message): string|object
     {

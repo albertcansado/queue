@@ -104,17 +104,17 @@ class Message implements JsonSerializable
      * Get the target class and method.
      *
      * @return array{string, string}
-     * @psalm-return array{class-string, string}
+     * @phpstan-return array{class-string, string}
      */
     public function getTarget(): array
     {
-        /** @var array|null $target */
+        /** @var array{class-string, string}|null $target */
         $target = $this->parsedBody['class'] ?? null;
 
         if (!is_array($target) || count($target) !== 2) {
             throw new RuntimeException(sprintf(
                 'Message class should be in the form `[class, method]` got `%s`',
-                json_encode($target)
+                json_encode($target),
             ));
         }
 
@@ -153,7 +153,6 @@ class Message implements JsonSerializable
 
         $class = $target[0];
 
-        /** @psalm-suppress InvalidPropertyFetch */
         return $class::$maxAttempts ?? null;
     }
 

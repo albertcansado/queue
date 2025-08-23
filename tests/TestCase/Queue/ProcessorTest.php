@@ -96,6 +96,11 @@ class ProcessorTest extends TestCase
         $data = $events[2]->getData();
         $this->assertArrayHasKey('message', $data);
         $this->assertSame($message->jsonSerialize(), $data['message']->jsonSerialize());
+
+        // Verify timing information is present in completion events
+        $this->assertArrayHasKey('duration', $data);
+        $this->assertIsInt($data['duration']);
+        $this->assertGreaterThanOrEqual(0, $data['duration']);
     }
 
     /**
@@ -155,6 +160,14 @@ class ProcessorTest extends TestCase
 
         $result = $processor->process($queueMessage, $context);
         $this->assertEquals(InteropProcessor::REQUEUE, $result);
+
+        // Verify timing information is present in exception event
+        $this->assertSame(3, $events->count());
+        $this->assertSame('Processor.message.exception', $events[2]->getName());
+        $data = $events[2]->getData();
+        $this->assertArrayHasKey('duration', $data);
+        $this->assertIsInt($data['duration']);
+        $this->assertGreaterThanOrEqual(0, $data['duration']);
     }
 
     /**
