@@ -13,14 +13,14 @@
  * @license       https://opensource.org/licenses/MIT MIT License
  */
 #}
-<?php
-declare(strict_types=1);
-
-namespace {{ namespace }}\Job;
-
-use Cake\Queue\Job\JobInterface;
-use Cake\Queue\Job\Message;
-use Interop\Queue\Processor;
+{{ element('Bake.file_header', {
+    namespace: "#{namespace}\\Job",
+    classImports: [
+        'Cake\\Queue\\Job\\JobInterface',
+        'Cake\\Queue\\Job\\Message',
+        'Interop\\Queue\\Processor',
+    ],
+}) }}
 
 /**
  * {{ name }} job
@@ -30,7 +30,7 @@ class {{ name }}Job implements JobInterface
 {% if maxAttempts %}
     /**
      * The maximum number of times the job may be attempted.
-     * 
+     *
      * @var int|null
      */
     public static $maxAttempts = {{ maxAttempts }};
@@ -39,7 +39,7 @@ class {{ name }}Job implements JobInterface
 {% if isUnique %}
     /**
      * Whether there should be only one instance of a job on the queue at a time. (optional property)
-     * 
+     *
      * @var bool
      */
     public static $shouldBeUnique = true;

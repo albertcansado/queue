@@ -27,6 +27,7 @@
         "psr/log": "^3.0"
     },
     "require-dev": {
+        "cakephp/twig-view": "^2.0.2",
         "cakephp/bake": "^3.0.0",
         "cakephp/cakephp-codesniffer": "^5.0",
         "enqueue/fs": "^0.10",

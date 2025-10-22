@@ -54,8 +54,12 @@ if (!defined('CONFIG')) {
 @mkdir(CACHE . 'models');
 // phpcs:enable
 
+$cache_key = '_cake_translations_';
+if (Configure::version() <= '5.1.0') {
+    $cache_key = '_cake_core_';
+}
 Cache::setConfig([
-    '_cake_translations_' => [
+    $cache_key => [
         'engine' => 'File',
         'prefix' => '_cake_translations_',
         'serialize' => true,
