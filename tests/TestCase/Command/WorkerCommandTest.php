@@ -14,6 +14,7 @@ declare(strict_types=1);
  * @since         0.1.0
  * @license       https://opensource.org/licenses/MIT MIT License
  */
+
 namespace Cake\Queue\Test\TestCase\Command;
 
 use Cake\Console\TestSuite\ConsoleIntegrationTestTrait;
@@ -22,8 +23,10 @@ use Cake\Log\Log;
 use Cake\Queue\QueueManager;
 use Cake\Queue\Test\test_app\src\Job\LogToDebugWithServiceJob;
 use Cake\Queue\Test\test_app\src\Queue\TestCustomProcessor;
-use Cake\Queue\Test\TestCase\DebugLogTrait;
+use Cake\Queue\Test\TestCase\QueueTestTrait;
 use Cake\TestSuite\TestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use TestApp\Job\LogToDebugJob;
 use TestApp\Job\RequeueJob;
 use TestApp\WelcomeMailerListener;
@@ -36,7 +39,7 @@ use TestApp\WelcomeMailerListener;
 class WorkerCommandTest extends TestCase
 {
     use ConsoleIntegrationTestTrait;
-    use DebugLogTrait;
+    use QueueTestTrait;
 
     /**
      * Test that command description prints out
@@ -49,9 +52,8 @@ class WorkerCommandTest extends TestCase
 
     /**
      * Test that queue will run for one second
-     *
-     * @runInSeparateProcess
      */
+    #[RunInSeparateProcess]
     public function testQueueProcessesStart()
     {
         Configure::write('Queue', [
@@ -66,9 +68,8 @@ class WorkerCommandTest extends TestCase
 
     /**
      * Test that queue will run for one second with valid listener
-     *
-     * @runInSeparateProcess
      */
+    #[RunInSeparateProcess]
     public function testQueueProcessesWithListener()
     {
         Configure::write('Queue', [
@@ -84,9 +85,8 @@ class WorkerCommandTest extends TestCase
 
     /**
      * Test that queue will abort when the passed config is not present in the app configuration.
-     *
-     * @runInSeparateProcess
      */
+    #[RunInSeparateProcess]
     public function testQueueWillAbortWithMissingConfig()
     {
         Configure::write('Queue', [
@@ -103,9 +103,8 @@ class WorkerCommandTest extends TestCase
 
     /**
      * Test that queue will abort with invalid listener
-     *
-     * @runInSeparateProcess
      */
+    #[RunInSeparateProcess]
     public function testQueueProcessesWithInvalidListener()
     {
         Configure::write('Queue', [
@@ -122,9 +121,8 @@ class WorkerCommandTest extends TestCase
 
     /**
      * Test that queue will write to specified logger option
-     *
-     * @runInSeparateProcess
      */
+    #[RunInSeparateProcess]
     public function testQueueProcessesWithLogger()
     {
         Configure::write('Queue', [
@@ -157,10 +155,9 @@ class WorkerCommandTest extends TestCase
 
     /**
      * Start up the worker queue, push a job, and see that it processes
-     *
-     * @dataProvider dataProviderCallableTypes
-     * @runInSeparateProcess
      */
+    #[RunInSeparateProcess]
+    #[DataProvider('dataProviderCallableTypes')]
     public function testQueueProcessesJob($callable)
     {
         $config = [
@@ -186,9 +183,8 @@ class WorkerCommandTest extends TestCase
 
     /**
      * Set the processor name, Start up the worker queue, push a job, and see that it processes
-     *
-     * @runInSeparateProcess
      */
+    #[RunInSeparateProcess]
     public function testQueueProcessesJobWithProcessor()
     {
         $config = [
@@ -213,9 +209,8 @@ class WorkerCommandTest extends TestCase
 
     /**
      * Test non-default queue name
-     *
-     * @runInSeparateProcess
      */
+    #[RunInSeparateProcess]
     public function testQueueProcessesJobWithOtherQueue()
     {
         $config = [
@@ -241,9 +236,8 @@ class WorkerCommandTest extends TestCase
 
     /**
      * Test max-attempts option
-     *
-     * @runInSeparateProcess
      */
+    #[RunInSeparateProcess]
     public function testQueueProcessesJobWithMaxAttempts()
     {
         $config = [
@@ -269,9 +263,8 @@ class WorkerCommandTest extends TestCase
 
     /**
      * Test DI service injection works in tasks
-     *
-     * @runInSeparateProcess
      */
+    #[RunInSeparateProcess]
     public function testQueueProcessesJobWithDIService()
     {
         $this->skipIf(version_compare(Configure::version(), '4.2', '<'), 'DI Container is only available since CakePHP 4.2');
@@ -297,9 +290,8 @@ class WorkerCommandTest extends TestCase
 
     /**
      * Test that queue will process when a unique cache is configured.
-     *
-     * @runInSeparateProcess
      */
+    #[RunInSeparateProcess]
     public function testQueueProcessesWithUniqueCacheConfigured()
     {
         $config = [
@@ -324,9 +316,8 @@ class WorkerCommandTest extends TestCase
 
     /**
      * Test that queue uses default processor when no processor is specified.
-     *
-     * @runInSeparateProcess
      */
+    #[RunInSeparateProcess]
     public function testQueueUsesDefaultProcessor()
     {
         $config = [
@@ -352,9 +343,8 @@ class WorkerCommandTest extends TestCase
 
     /**
      * Test that queue uses custom processor when specified in configuration.
-     *
-     * @runInSeparateProcess
      */
+    #[RunInSeparateProcess]
     public function testQueueUsesCustomProcessor()
     {
         $config = [
@@ -383,9 +373,8 @@ class WorkerCommandTest extends TestCase
 
     /**
      * Test that queue aborts when custom processor class does not exist.
-     *
-     * @runInSeparateProcess
      */
+    #[RunInSeparateProcess]
     public function testQueueAbortsWithNonExistentProcessor()
     {
         $config = [
@@ -403,9 +392,8 @@ class WorkerCommandTest extends TestCase
 
     /**
      * Test that queue aborts when custom processor does not implement Interop\Queue\Processor.
-     *
-     * @runInSeparateProcess
      */
+    #[RunInSeparateProcess]
     public function testQueueAbortsWithInvalidProcessor()
     {
         $config = [
@@ -423,9 +411,8 @@ class WorkerCommandTest extends TestCase
 
     /**
      * Test that custom processor works with listener configuration.
-     *
-     * @runInSeparateProcess
      */
+    #[RunInSeparateProcess]
     public function testCustomProcessorWithListener()
     {
         $config = [

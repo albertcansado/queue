@@ -14,6 +14,7 @@ declare(strict_types=1);
  * @since         0.1.0
  * @license       https://opensource.org/licenses/MIT MIT License
  */
+
 namespace Cake\Queue\Test\TestCase\Queue;
 
 use Cake\Event\EventList;
@@ -21,14 +22,18 @@ use Cake\Log\Engine\ArrayLog;
 use Cake\Log\Log;
 use Cake\Queue\Job\Message;
 use Cake\Queue\Queue\Processor;
+use Cake\Queue\Test\TestCase\QueueTestTrait;
 use Cake\TestSuite\TestCase;
 use Enqueue\Null\NullConnectionFactory;
 use Enqueue\Null\NullMessage;
 use Interop\Queue\Processor as InteropProcessor;
+use PHPUnit\Framework\Attributes\DataProvider;
 use TestApp\TestProcessor;
 
 class ProcessorTest extends TestCase
 {
+    use QueueTestTrait;
+
     public static $lastProcessMessage;
 
     /**
@@ -54,9 +59,9 @@ class ProcessorTest extends TestCase
      * @param string $expected The expected process result.
      * @param string $logMessage The log message based on process result.
      * @param string $dispacthedEvent The dispatched event based on process result.
-     * @dataProvider dataProviderTestProcess
      * @return void
      */
+    #[DataProvider('dataProviderTestProcess')]
     public function testProcess($jobMethod, $expected, $logMessage, $dispatchedEvent)
     {
         $messageBody = [
