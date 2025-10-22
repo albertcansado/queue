@@ -55,9 +55,9 @@ if (!defined('CONFIG')) {
 // phpcs:enable
 
 Cache::setConfig([
-    '_cake_core_' => [
+    '_cake_translations_' => [
         'engine' => 'File',
-        'prefix' => 'cake_core_',
+        'prefix' => '_cake_translations_',
         'serialize' => true,
     ],
     '_cake_model_' => [
