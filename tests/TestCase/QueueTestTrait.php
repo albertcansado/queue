@@ -28,13 +28,6 @@ use PHPUnit\Framework\Attributes\After;
  * Provides:
  * - Configuration cleanup for QueueManager, Cache, and Log
  * - Debug log assertion helpers
- *
- * Usage in your test class:
- *
- * ```php
- * use QueueTestTrait;
- * ```
-</parameter>
  */
 trait QueueTestTrait
 {
