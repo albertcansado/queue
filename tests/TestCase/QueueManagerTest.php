@@ -14,6 +14,7 @@ declare(strict_types=1);
  * @since 0.1.0
  * @license https://www.opensource.org/licenses/mit-license.php MIT License
  */
+
 namespace Cake\Queue\Test\TestCase;
 
 use BadMethodCallException;
@@ -32,7 +33,7 @@ use TypeError;
  */
 class QueueManagerTest extends TestCase
 {
-    use DebugLogTrait;
+    use QueueTestTrait;
 
     private $fsQueuePath = TMP . DS . 'queue';
 

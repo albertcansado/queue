@@ -148,6 +148,16 @@ class QueueManager
     }
 
     /**
+     * Get the configured queue keys.
+     *
+     * @return array List of configured queue configuration keys.
+     */
+    public static function configured(): array
+    {
+        return array_keys(static::$_config);
+    }
+
+    /**
      * Remove a configured queue adapter.
      *
      * @param string $key The config name to drop.

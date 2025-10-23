@@ -20,7 +20,7 @@ use Cake\Console\TestSuite\ConsoleIntegrationTestTrait;
 use Cake\Core\Configure;
 use Cake\Log\Log;
 use Cake\Queue\QueueManager;
-use Cake\Queue\Test\TestCase\DebugLogTrait;
+use Cake\Queue\Test\TestCase\QueueTestTrait;
 use Cake\TestSuite\TestCase;
 use TestApp\Job\LogToDebugJob;
 
@@ -32,7 +32,7 @@ use TestApp\Job\LogToDebugJob;
 class RequeueCommandTest extends TestCase
 {
     use ConsoleIntegrationTestTrait;
-    use DebugLogTrait;
+    use QueueTestTrait;
 
     protected array $fixtures = [
         'plugin.Cake/Queue.FailedJobs',
