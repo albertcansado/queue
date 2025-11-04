@@ -16,6 +16,7 @@ declare(strict_types=1);
  */
 namespace Cake\Queue;
 
+use Bake\Command\SimpleBakeCommand;
 use Cake\Console\CommandCollection;
 use Cake\Core\BasePlugin;
 use Cake\Core\Configure;
@@ -72,7 +73,7 @@ class Plugin extends BasePlugin
      */
     public function console(CommandCollection $commands): CommandCollection
     {
-        if (class_exists('Bake\Command\SimpleBakeCommand')) {
+        if (class_exists(SimpleBakeCommand::class)) {
             $commands->add('bake job', JobCommand::class);
         }
 

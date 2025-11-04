@@ -76,14 +76,14 @@ class FailedJobsListener implements EventListenerInterface
         try {
             $failedJobsTable->saveOrFail($failedJob);
         /** @phpstan-ignore-next-line */
-        } catch (PersistenceFailedException $e) {
+        } catch (PersistenceFailedException $persistenceFailedException) {
             $logger = $event->getData('logger');
 
             if (!$logger) {
                 throw new RuntimeException(
                     sprintf('`logger` was not defined on %s event.', $event->getName()),
                     0,
-                    $e,
+                    $persistenceFailedException,
                 );
             }
 
@@ -91,11 +91,11 @@ class FailedJobsListener implements EventListenerInterface
                 throw new RuntimeException(
                     sprintf('`logger` is not an instance of `LoggerInterface` on %s event.', $event->getName()),
                     0,
-                    $e,
+                    $persistenceFailedException,
                 );
             }
 
-            $logger->error((string)$e);
+            $logger->error((string)$persistenceFailedException);
         }
     }
 }

@@ -26,7 +26,7 @@ use Cake\Event\EventListenerInterface;
 class WelcomeMailerListener implements EventListenerInterface
 {
     /**
-     * @return array
+     * @return array{}
      */
     public function implementedEvents(): array
     {

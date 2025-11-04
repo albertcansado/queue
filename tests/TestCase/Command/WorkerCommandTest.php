@@ -143,7 +143,7 @@ class WorkerCommandTest extends TestCase
     /**
      * Data provider for testQueueProcessesJob method
      *
-     * @return array
+     * @return array<string, array<class-string<\TestApp\Job\LogToDebugJob>|string[]>>
      */
     public static function dataProviderCallableTypes(): array
     {

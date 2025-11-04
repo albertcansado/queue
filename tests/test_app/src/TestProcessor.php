@@ -15,8 +15,8 @@ class TestProcessor
      * Job to be used in test testProcessMessageCallableIsString
      *
      * @param Message $message The message to process
-     * @return null
      * @throws Exception
+     * @return null
      */
     public static function processAndThrowException(Message $message)
     {

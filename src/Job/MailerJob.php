@@ -41,13 +41,13 @@ class MailerJob implements JobInterface
 
         try {
             $mailer = $this->getMailer($mailerName, $mailerConfig);
-        } catch (MissingMailerException $e) {
+        } catch (MissingMailerException $missingMailerException) {
             return Processor::REJECT;
         }
 
         try {
             $mailer->send($action, $args, $headers);
-        } catch (BadMethodCallException $e) {
+        } catch (BadMethodCallException $badMethodCallException) {
             return Processor::REJECT;
         }
 

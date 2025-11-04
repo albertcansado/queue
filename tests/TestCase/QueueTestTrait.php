@@ -49,7 +49,7 @@ trait QueueTestTrait
             $queueConfig = QueueManager::getConfig($config);
             if ($queueConfig && isset($queueConfig['uniqueCacheKey'])) {
                 $cacheKey = $queueConfig['uniqueCacheKey'];
-                if (Cache::configured($cacheKey)) {
+                if (Cache::configured()) {
                     Cache::drop($cacheKey);
                 }
             }
@@ -71,7 +71,7 @@ trait QueueTestTrait
     {
         $found = $this->debugLogCount($expected);
 
-        $this->assertGreaterThanOrEqual(1, $found, "Did not find `{$expected}` in logs.");
+        $this->assertGreaterThanOrEqual(1, $found, sprintf('Did not find `%s` in logs.', $expected));
     }
 
     /**
@@ -85,7 +85,7 @@ trait QueueTestTrait
     {
         $found = $this->debugLogCount($expected);
 
-        $this->assertSame($times, $found, "Did not find `{$expected}` exactly {$times} times in logs.");
+        $this->assertSame($times, $found, sprintf('Did not find `%s` exactly %d times in logs.', $expected, $times));
     }
 
     /**
@@ -94,7 +94,7 @@ trait QueueTestTrait
      * @param string $search The message to search for
      * @return int The number of times the message was found
      */
-    protected function debugLogCount($search)
+    protected function debugLogCount($search): int
     {
         $log = Log::engine('debug');
         $found = 0;
