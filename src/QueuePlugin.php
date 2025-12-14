@@ -31,7 +31,7 @@ use InvalidArgumentException;
 /**
  * Plugin for Queue
  */
-class Plugin extends BasePlugin
+class QueuePlugin extends BasePlugin
 {
     /**
      * Plugin name.

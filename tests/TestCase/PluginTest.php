@@ -4,8 +4,8 @@ declare(strict_types=1);
 namespace Cake\Queue\Test\TestCase;
 
 use Cake\Core\Configure;
-use Cake\Queue\Plugin;
 use Cake\Queue\QueueManager;
+use Cake\Queue\QueuePlugin;
 use Cake\TestSuite\TestCase;
 use InvalidArgumentException;
 use TestApp\Application;
@@ -22,7 +22,7 @@ class PluginTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('Missing `Queue` configuration key, please check the CakePHP Queue documentation to complete the plugin setup');
         Configure::delete('Queue');
-        $plugin = new Plugin();
+        $plugin = new QueuePlugin();
         $app = $this->getMockBuilder(Application::class)->disableOriginalConstructor()->getMock();
         $plugin->bootstrap($app);
     }
@@ -40,7 +40,7 @@ class PluginTest extends TestCase
             'logger' => 'stdout',
         ];
         Configure::write('Queue', ['default' => $queueConfig]);
-        $plugin = new Plugin();
+        $plugin = new QueuePlugin();
         $app = $this->getMockBuilder(Application::class)->disableOriginalConstructor()->getMock();
         $plugin->bootstrap($app);
         $queueConfig['url'] = [
