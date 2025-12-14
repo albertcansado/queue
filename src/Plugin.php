@@ -16,85 +16,9 @@ declare(strict_types=1);
  */
 namespace Cake\Queue;
 
-use Bake\Command\SimpleBakeCommand;
-use Cake\Console\CommandCollection;
-use Cake\Core\BasePlugin;
-use Cake\Core\Configure;
-use Cake\Core\ContainerInterface;
-use Cake\Core\PluginApplicationInterface;
-use Cake\Queue\Command\JobCommand;
-use Cake\Queue\Command\PurgeFailedCommand;
-use Cake\Queue\Command\RequeueCommand;
-use Cake\Queue\Command\WorkerCommand;
-use InvalidArgumentException;
-
 /**
- * Plugin for Queue
+ * @deprecated 2.2.1 Use QueuePlugin instead
  */
-class Plugin extends BasePlugin
+class Plugin extends QueuePlugin
 {
-    /**
-     * Plugin name.
-     */
-    protected ?string $name = 'Cake/Queue';
-
-    /**
-     * Load routes or not
-     */
-    protected bool $routesEnabled = false;
-
-    /**
-     * Load the Queue configuration
-     *
-     * @param \Cake\Core\PluginApplicationInterface $app The host application
-     * @return void
-     */
-    public function bootstrap(PluginApplicationInterface $app): void
-    {
-        if (!Configure::read('Queue')) {
-            throw new InvalidArgumentException(
-                'Missing `Queue` configuration key, please check the CakePHP Queue documentation' .
-                ' to complete the plugin setup.',
-            );
-        }
-
-        foreach (Configure::read('Queue') as $key => $data) {
-            if (QueueManager::getConfig($key) === null) {
-                QueueManager::setConfig($key, $data);
-            }
-        }
-    }
-
-    /**
-     * Add console commands for the plugin.
-     *
-     * @param \Cake\Console\CommandCollection $commands The command collection to update
-     * @return \Cake\Console\CommandCollection
-     */
-    public function console(CommandCollection $commands): CommandCollection
-    {
-        if (class_exists(SimpleBakeCommand::class)) {
-            $commands->add('bake job', JobCommand::class);
-        }
-
-        return $commands
-            ->add('queue worker', WorkerCommand::class)
-            ->add('worker', WorkerCommand::class)
-            ->add('queue requeue', RequeueCommand::class)
-            ->add('queue purge_failed', PurgeFailedCommand::class);
-    }
-
-    /**
-     * Add DI container to Worker command
-     *
-     * @param \Cake\Core\ContainerInterface $container The DI container
-     * @return void
-     */
-    public function services(ContainerInterface $container): void
-    {
-        $container->add(ContainerInterface::class, $container);
-        $container
-            ->add(WorkerCommand::class)
-            ->addArgument(ContainerInterface::class);
-    }
 }
