@@ -13,7 +13,6 @@ class RemoveUniqueJobIdFromCacheExtension implements MessageResultExtensionInter
 {
     /**
      * @param string $cache Cache engine name.
-     * @return void
      */
     public function __construct(
         protected readonly string $cache,

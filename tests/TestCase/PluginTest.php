@@ -23,7 +23,7 @@ class PluginTest extends TestCase
         $this->expectExceptionMessage('Missing `Queue` configuration key, please check the CakePHP Queue documentation to complete the plugin setup');
         Configure::delete('Queue');
         $plugin = new QueuePlugin();
-        $app = $this->getMockBuilder(Application::class)->disableOriginalConstructor()->getMock();
+        $app = $this->createStub(Application::class);
         $plugin->bootstrap($app);
     }
 
@@ -41,7 +41,7 @@ class PluginTest extends TestCase
         ];
         Configure::write('Queue', ['default' => $queueConfig]);
         $plugin = new QueuePlugin();
-        $app = $this->getMockBuilder(Application::class)->disableOriginalConstructor()->getMock();
+        $app = $this->createStub(Application::class);
         $plugin->bootstrap($app);
         $queueConfig['url'] = [
             'transport' => 'null:',
