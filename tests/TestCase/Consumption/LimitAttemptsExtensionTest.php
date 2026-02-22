@@ -10,7 +10,7 @@ use Cake\Queue\Consumption\LimitAttemptsExtension;
 use Cake\Queue\Consumption\LimitConsumedMessagesExtension;
 use Cake\Queue\Queue\Processor as QueueProcessor;
 use Cake\Queue\QueueManager;
-use Cake\Queue\Test\TestCase\DebugLogTrait;
+use Cake\Queue\Test\TestCase\QueueTestTrait;
 use Cake\TestSuite\TestCase;
 use Enqueue\Consumption\ChainExtension;
 use PHPUnit\Framework\Attributes\After;
@@ -21,7 +21,7 @@ use TestApp\Job\RequeueJob;
 
 class LimitAttemptsExtensionTest extends TestCase
 {
-    use DebugLogTrait;
+    use QueueTestTrait;
 
     public function setUp(): void
     {

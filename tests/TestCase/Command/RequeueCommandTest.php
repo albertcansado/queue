@@ -20,7 +20,7 @@ use Cake\Console\TestSuite\ConsoleIntegrationTestTrait;
 use Cake\Core\Configure;
 use Cake\Log\Log;
 use Cake\Queue\QueueManager;
-use Cake\Queue\Test\TestCase\DebugLogTrait;
+use Cake\Queue\Test\TestCase\QueueTestTrait;
 use Cake\TestSuite\TestCase;
 use TestApp\Job\LogToDebugJob;
 
@@ -32,8 +32,11 @@ use TestApp\Job\LogToDebugJob;
 class RequeueCommandTest extends TestCase
 {
     use ConsoleIntegrationTestTrait;
-    use DebugLogTrait;
+    use QueueTestTrait;
 
+    /**
+     * @var string[]
+     */
     protected array $fixtures = [
         'plugin.Cake/Queue.FailedJobs',
     ];
@@ -133,7 +136,7 @@ class RequeueCommandTest extends TestCase
 
         $this->cleanupConsoleTrait();
         $class = LogToDebugJob::class;
-        $this->exec("queue requeue --class {$class} --queue default -f");
+        $this->exec(sprintf('queue requeue --class %s --queue default -f', $class));
 
         $this->assertOutputContains('Requeueing 1 jobs.');
         $this->assertOutputContains('1 jobs requeued.');

@@ -9,6 +9,7 @@ use Cake\Queue\Consumption\LimitConsumedMessagesExtension;
 use Cake\Queue\Consumption\RemoveUniqueJobIdFromCacheExtension;
 use Cake\Queue\Queue\Processor as QueueProcessor;
 use Cake\Queue\QueueManager;
+use Cake\Queue\Test\TestCase\QueueTestTrait;
 use Cake\TestSuite\TestCase;
 use Enqueue\Consumption\ChainExtension;
 use PHPUnit\Framework\Attributes\After;
@@ -18,6 +19,8 @@ use TestApp\Job\UniqueJob;
 
 class RemoveUniqueJobIdFromCacheExtensionTest extends TestCase
 {
+    use QueueTestTrait;
+
     #[BeforeClass, After]
     public static function dropConfigs()
     {

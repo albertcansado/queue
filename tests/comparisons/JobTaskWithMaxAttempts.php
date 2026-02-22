@@ -14,7 +14,7 @@ class UploadJob implements JobInterface
 {
     /**
      * The maximum number of times the job may be attempted.
-     * 
+     *
      * @var int|null
      */
     public static $maxAttempts = 3;

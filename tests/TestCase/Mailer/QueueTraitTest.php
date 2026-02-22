@@ -18,12 +18,15 @@ namespace Cake\Queue\Test\TestCase\Mailer;
 
 use Cake\Mailer\Exception\MissingActionException;
 use Cake\Queue\QueueManager;
+use Cake\Queue\Test\TestCase\QueueTestTrait;
 use Cake\TestSuite\TestCase;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use TestApp\WelcomeMailer;
 
 class QueueTraitTest extends TestCase
 {
+    use QueueTestTrait;
+
     /**
      * Test that a MissingActionException is being thrown when
      * the push action is not found on the object with the QueueTrait

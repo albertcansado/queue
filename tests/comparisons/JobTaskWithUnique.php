@@ -14,7 +14,7 @@ class UploadJob implements JobInterface
 {
     /**
      * Whether there should be only one instance of a job on the queue at a time. (optional property)
-     * 
+     *
      * @var bool
      */
     public static $shouldBeUnique = true;

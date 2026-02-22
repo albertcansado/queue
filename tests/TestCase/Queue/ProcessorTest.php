@@ -14,6 +14,7 @@ declare(strict_types=1);
  * @since         0.1.0
  * @license       https://opensource.org/licenses/MIT MIT License
  */
+
 namespace Cake\Queue\Test\TestCase\Queue;
 
 use Cake\Event\EventList;
@@ -21,21 +22,25 @@ use Cake\Log\Engine\ArrayLog;
 use Cake\Log\Log;
 use Cake\Queue\Job\Message;
 use Cake\Queue\Queue\Processor;
+use Cake\Queue\Test\TestCase\QueueTestTrait;
 use Cake\TestSuite\TestCase;
 use Enqueue\Null\NullConnectionFactory;
 use Enqueue\Null\NullMessage;
 use Interop\Queue\Processor as InteropProcessor;
 use PHPUnit\Framework\Attributes\DataProvider;
 use TestApp\TestProcessor;
+use TestApp\WelcomeMailer;
 
 class ProcessorTest extends TestCase
 {
+    use QueueTestTrait;
+
     public static $lastProcessMessage;
 
     /**
      * Data provider for testProcess method
      *
-     * @return array
+     * @return array<string, string[]>
      */
     public static function dataProviderTestProcess(): array
     {
@@ -183,7 +188,7 @@ class ProcessorTest extends TestCase
         ]);
 
         $messageBody = [
-            'class' => ['TestApp\WelcomeMailer', 'welcome'],
+            'class' => [WelcomeMailer::class, 'welcome'],
             'args' => [],
         ];
         $connectionFactory = new NullConnectionFactory();

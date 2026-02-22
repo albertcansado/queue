@@ -14,6 +14,7 @@ declare(strict_types=1);
  * @since         0.1.0
  * @license       https://opensource.org/licenses/MIT MIT License
  */
+
 namespace Cake\Queue\Test\TestCase\Mailer;
 
 use Cake\Event\Event;
@@ -25,6 +26,7 @@ use Cake\Queue\Job\Message;
 use Cake\Queue\Listener\FailedJobsListener;
 use Cake\Queue\Model\Table\FailedJobsTable;
 use Cake\Queue\QueueManager;
+use Cake\Queue\Test\TestCase\QueueTestTrait;
 use Cake\TestSuite\TestCase;
 use Enqueue\Null\NullConnectionFactory;
 use Enqueue\Null\NullMessage;
@@ -35,6 +37,11 @@ use TestApp\Job\LogToDebugJob;
 
 class FailedJobsListenerTest extends TestCase
 {
+    use QueueTestTrait;
+
+    /**
+     * @var string[]
+     */
     protected array $fixtures = [
         'plugin.Cake/Queue.FailedJobs',
     ];
@@ -47,13 +54,6 @@ class FailedJobsListenerTest extends TestCase
             'url' => 'null:',
             'storeFailedJobs' => true,
         ]);
-    }
-
-    public function tearDown(): void
-    {
-        parent::tearDown();
-
-        QueueManager::drop('example_config');
     }
 
     public function testFailedJobIsAddedWhenEventIsFired()

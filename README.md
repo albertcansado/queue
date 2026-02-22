@@ -1,8 +1,9 @@
 # Queue plugin for CakePHP
 
-![Build Status](https://github.com/cakephp/queue/actions/workflows/ci.yml/badge.svg?branch=master)
+[![CI](https://github.com/cakephp/queue/actions/workflows/ci.yml/badge.svg)](https://github.com/cakephp/queue/actions/workflows/ci.yml)
 [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](LICENSE.txt)
 [![Coverage Status](https://img.shields.io/codecov/c/github/cakephp/queue/master.svg?style=flat-square)](https://codecov.io/github/cakephp/queue?branch=master)
+[![PHPStan Level 8](https://img.shields.io/badge/PHPStan-level%208-brightgreen)](https://github.com/cakephp/queue)
 [![Total Downloads](https://img.shields.io/packagist/dt/cakephp/queue.svg?style=flat-square)](https://packagist.org/packages/cakephp/queue)
 
 This is a Queue system for CakePHP.

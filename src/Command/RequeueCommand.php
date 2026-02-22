@@ -74,9 +74,9 @@ class RequeueCommand extends Command
     /**
      * @param \Cake\Console\Arguments $args Arguments
      * @param \Cake\Console\ConsoleIo $io ConsoleIo
-     * @return void
+     * @return int
      */
-    public function execute(Arguments $args, ConsoleIo $io): void
+    public function execute(Arguments $args, ConsoleIo $io): int
     {
         /** @var \Cake\Queue\Model\Table\FailedJobsTable $failedJobsTable */
         $failedJobsTable = $this->getTableLocator()->get('Cake/Queue.FailedJobs');
@@ -110,18 +110,18 @@ class RequeueCommand extends Command
         if (!$requeueingCount) {
             $io->out('0 jobs found.');
 
-            return;
+            return self::CODE_SUCCESS;
         }
 
         if (!$args->getOption('force')) {
-            $confirmed = $io->askChoice("Requeue {$requeueingCount} jobs?", ['y', 'n'], 'n');
+            $confirmed = $io->askChoice(sprintf('Requeue %s jobs?', $requeueingCount), ['y', 'n'], 'n');
 
             if ($confirmed !== 'y') {
-                return;
+                return self::CODE_SUCCESS;
             }
         }
 
-        $io->out("Requeueing {$requeueingCount} jobs.");
+        $io->out(sprintf('Requeueing %s jobs.', $requeueingCount));
 
         $succeededCount = 0;
         $failedCount = 0;
@@ -129,7 +129,7 @@ class RequeueCommand extends Command
         /** @var array<\Cake\Queue\Model\Entity\FailedJob> $jobsToRequeue */
         $jobsToRequeue = $jobsToRequeueQuery->all();
         foreach ($jobsToRequeue as $failedJob) {
-            $io->verbose("Requeueing FailedJob with ID {$failedJob->id}.");
+            $io->verbose(sprintf('Requeueing FailedJob with ID %d.', $failedJob->id));
             try {
                 QueueManager::push(
                     [$failedJob->class, $failedJob->method],
@@ -145,19 +145,21 @@ class RequeueCommand extends Command
 
                 $succeededCount++;
             } catch (Exception $e) {
-                $io->err("Exception occurred while requeueing FailedJob with ID {$failedJob->id}");
+                $io->err('Exception occurred while requeueing FailedJob with ID ' . $failedJob->id);
                 $io->err((string)$e);
 
                 $failedCount++;
             }
         }
 
-        if ($failedCount) {
-            $io->err("Failed to requeue {$failedCount} jobs.");
+        if ($failedCount !== 0) {
+            $io->err(sprintf('Failed to requeue %d jobs.', $failedCount));
         }
 
-        if ($succeededCount) {
-            $io->success("{$succeededCount} jobs requeued.");
+        if ($succeededCount !== 0) {
+            $io->success($succeededCount . ' jobs requeued.');
         }
+
+        return self::CODE_SUCCESS;
     }
 }

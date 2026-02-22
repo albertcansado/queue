@@ -20,10 +20,13 @@ use Cake\Mailer\Message;
 use Cake\Mailer\Transport\SmtpTransport;
 use Cake\Queue\Mailer\Transport\QueueTransport;
 use Cake\Queue\QueueManager;
+use Cake\Queue\Test\TestCase\QueueTestTrait;
 use Cake\TestSuite\TestCase;
 
 class QueueTransportTest extends TestCase
 {
+    use QueueTestTrait;
+
     private $fsQueuePath = TMP . DS . 'queue';
 
     private function getFsQueueUrl(): string

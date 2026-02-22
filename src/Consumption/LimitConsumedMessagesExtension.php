@@ -18,22 +18,15 @@ use Psr\Log\LoggerInterface;
  */
 class LimitConsumedMessagesExtension implements PreConsumeExtensionInterface, PostConsumeExtensionInterface
 {
-    /**
-     * @var int
-     */
-    protected int $messageLimit;
-
-    /**
-     * @var int
-     */
     protected int $messageConsumed = 0;
 
     /**
      * @param int $messageLimit The number of messages to process before exiting.
+     * @return void
      */
-    public function __construct(int $messageLimit)
-    {
-        $this->messageLimit = $messageLimit;
+    public function __construct(
+        protected readonly int $messageLimit,
+    ) {
     }
 
     /**

@@ -12,19 +12,12 @@ use Enqueue\Consumption\MessageResultExtensionInterface;
 class RemoveUniqueJobIdFromCacheExtension implements MessageResultExtensionInterface
 {
     /**
-     * Cache engine name.
-     *
-     * @var string
-     */
-    protected string $cache;
-
-    /**
      * @param string $cache Cache engine name.
      * @return void
      */
-    public function __construct(string $cache)
-    {
-        $this->cache = $cache;
+    public function __construct(
+        protected readonly string $cache,
+    ) {
     }
 
     /**

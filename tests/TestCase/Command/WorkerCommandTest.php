@@ -14,6 +14,7 @@ declare(strict_types=1);
  * @since         0.1.0
  * @license       https://opensource.org/licenses/MIT MIT License
  */
+
 namespace Cake\Queue\Test\TestCase\Command;
 
 use Cake\Console\TestSuite\ConsoleIntegrationTestTrait;
@@ -22,7 +23,7 @@ use Cake\Log\Log;
 use Cake\Queue\QueueManager;
 use Cake\Queue\Test\test_app\src\Job\LogToDebugWithServiceJob;
 use Cake\Queue\Test\test_app\src\Queue\TestCustomProcessor;
-use Cake\Queue\Test\TestCase\DebugLogTrait;
+use Cake\Queue\Test\TestCase\QueueTestTrait;
 use Cake\TestSuite\TestCase;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
@@ -38,7 +39,7 @@ use TestApp\WelcomeMailerListener;
 class WorkerCommandTest extends TestCase
 {
     use ConsoleIntegrationTestTrait;
-    use DebugLogTrait;
+    use QueueTestTrait;
 
     /**
      * Test that command description prints out
@@ -142,7 +143,7 @@ class WorkerCommandTest extends TestCase
     /**
      * Data provider for testQueueProcessesJob method
      *
-     * @return array
+     * @return array<string, array<class-string<\TestApp\Job\LogToDebugJob>|string[]>>
      */
     public static function dataProviderCallableTypes(): array
     {
@@ -315,9 +316,8 @@ class WorkerCommandTest extends TestCase
 
     /**
      * Test that queue uses default processor when no processor is specified.
-     *
-     * @runInSeparateProcess
      */
+    #[RunInSeparateProcess]
     public function testQueueUsesDefaultProcessor()
     {
         $config = [
@@ -343,9 +343,8 @@ class WorkerCommandTest extends TestCase
 
     /**
      * Test that queue uses custom processor when specified in configuration.
-     *
-     * @runInSeparateProcess
      */
+    #[RunInSeparateProcess]
     public function testQueueUsesCustomProcessor()
     {
         $config = [
@@ -374,9 +373,8 @@ class WorkerCommandTest extends TestCase
 
     /**
      * Test that queue aborts when custom processor class does not exist.
-     *
-     * @runInSeparateProcess
      */
+    #[RunInSeparateProcess]
     public function testQueueAbortsWithNonExistentProcessor()
     {
         $config = [
@@ -394,9 +392,8 @@ class WorkerCommandTest extends TestCase
 
     /**
      * Test that queue aborts when custom processor does not implement Interop\Queue\Processor.
-     *
-     * @runInSeparateProcess
      */
+    #[RunInSeparateProcess]
     public function testQueueAbortsWithInvalidProcessor()
     {
         $config = [
@@ -414,9 +411,8 @@ class WorkerCommandTest extends TestCase
 
     /**
      * Test that custom processor works with listener configuration.
-     *
-     * @runInSeparateProcess
      */
+    #[RunInSeparateProcess]
     public function testCustomProcessorWithListener()
     {
         $config = [

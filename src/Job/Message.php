@@ -22,35 +22,33 @@ use Closure;
 use Interop\Queue\Context;
 use Interop\Queue\Message as QueueMessage;
 use JsonSerializable;
-use ReturnTypeWillChange;
 use RuntimeException;
 
 class Message implements JsonSerializable
 {
-    protected Context $context;
-
-    protected QueueMessage $originalMessage;
-
+    /**
+     * @var array<string, mixed>
+     */
     protected array $parsedBody;
 
     protected ?Closure $callable = null;
-
-    protected ?ContainerInterface $container = null;
 
     /**
      * @param \Interop\Queue\Message $originalMessage Queue message.
      * @param \Interop\Queue\Context $context Context.
      * @param \Cake\Core\ContainerInterface|null $container DI container instance
      */
-    public function __construct(QueueMessage $originalMessage, Context $context, ?ContainerInterface $container = null)
-    {
-        $this->context = $context;
-        $this->originalMessage = $originalMessage;
+    public function __construct(
+        protected readonly QueueMessage $originalMessage,
+        protected readonly Context $context,
+        protected readonly ?ContainerInterface $container = null,
+    ) {
         $this->parsedBody = json_decode($originalMessage->getBody(), true);
-        $this->container = $container;
     }
 
     /**
+     * Get the queue context.
+     *
      * @return \Interop\Queue\Context
      */
     public function getContext(): Context
@@ -59,6 +57,8 @@ class Message implements JsonSerializable
     }
 
     /**
+     * Get the original queue message.
+     *
      * @return \Interop\Queue\Message
      */
     public function getOriginalMessage(): QueueMessage
@@ -67,7 +67,9 @@ class Message implements JsonSerializable
     }
 
     /**
-     * @return array
+     * Get the parsed message body.
+     *
+     * @return array<string, mixed>
      */
     public function getParsedBody(): array
     {
@@ -84,7 +86,7 @@ class Message implements JsonSerializable
      */
     public function getCallable(): Closure
     {
-        if ($this->callable) {
+        if ($this->callable instanceof Closure) {
             return $this->callable;
         }
 
@@ -128,6 +130,7 @@ class Message implements JsonSerializable
      */
     public function getArgument(mixed $key = null, mixed $default = null): mixed
     {
+        // support old jobs that still use args key
         if (array_key_exists('data', $this->parsedBody)) {
             $data = $this->parsedBody['data'];
         } else {
@@ -157,6 +160,8 @@ class Message implements JsonSerializable
     }
 
     /**
+     * Convert the message to a string representation.
+     *
      * @return string
      */
     public function __toString(): string
@@ -165,9 +170,10 @@ class Message implements JsonSerializable
     }
 
     /**
-     * @return array
+     * Serialize the message to JSON.
+     *
+     * @return array<string, mixed>
      */
-    #[ReturnTypeWillChange]
     public function jsonSerialize(): array
     {
         return $this->parsedBody;
