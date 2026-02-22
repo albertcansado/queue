@@ -22,7 +22,6 @@ class LimitConsumedMessagesExtension implements PreConsumeExtensionInterface, Po
 
     /**
      * @param int $messageLimit The number of messages to process before exiting.
-     * @return void
      */
     public function __construct(
         protected readonly int $messageLimit,

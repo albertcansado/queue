@@ -30,12 +30,39 @@ use Interop\Queue\Processor as InteropProcessor;
 use PHPUnit\Framework\Attributes\DataProvider;
 use TestApp\TestProcessor;
 use TestApp\WelcomeMailer;
+use Traversable;
 
 class ProcessorTest extends TestCase
 {
     use QueueTestTrait;
 
-    public static $lastProcessMessage;
+    /**
+     * Convert EventList to array in a backwards-compatible way.
+     *
+     * In CakePHP 5.3.0+ EventList implements Traversable but array access is deprecated.
+     * In older versions, EventList only supports array access.
+     *
+     * @param \Cake\Event\EventList $events The event list to convert.
+     * @return array<\Cake\Event\EventInterface>
+     */
+    protected function eventListToArray(EventList $events): array
+    {
+        if ($events instanceof Traversable) {
+            /** @var array<\Cake\Event\EventInterface> */
+            return iterator_to_array($events);
+        }
+
+        $result = [];
+        $count = $events->count();
+        for ($i = 0; $i < $count; $i++) {
+            $event = $events[$i];
+            if ($event !== null) {
+                $result[] = $event;
+            }
+        }
+
+        return $result;
+    }
 
     /**
      * Data provider for testProcess method
@@ -63,7 +90,7 @@ class ProcessorTest extends TestCase
      * @return void
      */
     #[DataProvider('dataProviderTestProcess')]
-    public function testProcess($jobMethod, $expected, $logMessage, $dispatchedEvent)
+    public function testProcess(string $jobMethod, string $expected, string $logMessage, string $dispatchedEvent): void
     {
         $messageBody = [
             'class' => [TestProcessor::class, $jobMethod],
@@ -71,13 +98,15 @@ class ProcessorTest extends TestCase
         ];
         $connectionFactory = new NullConnectionFactory();
         $context = $connectionFactory->createContext();
-        $queueMessage = new NullMessage(json_encode($messageBody));
+        $queueMessage = new NullMessage((string)json_encode($messageBody));
         $message = new Message($queueMessage, $context);
 
         $events = new EventList();
         $logger = new ArrayLog();
         $processor = new Processor($logger);
-        $processor->getEventManager()->setEventList($events);
+        /** @var \Cake\Event\EventManager $eventManager */
+        $eventManager = $processor->getEventManager();
+        $eventManager->setEventList($events);
 
         $actual = $processor->process($queueMessage, $context);
         $this->assertSame($expected, $actual);
@@ -88,17 +117,18 @@ class ProcessorTest extends TestCase
         $this->assertStringContainsString($logMessage, $logs[0]);
 
         $this->assertSame(3, $events->count());
-        $this->assertSame('Processor.message.seen', $events[0]->getName());
-        $this->assertEquals(['queueMessage' => $queueMessage], $events[0]->getData());
+        $eventsList = $this->eventListToArray($events);
+        $this->assertSame('Processor.message.seen', $eventsList[0]->getName());
+        $this->assertEquals(['queueMessage' => $queueMessage], $eventsList[0]->getData());
 
         // Events should contain a message with the same payload.
-        $this->assertSame('Processor.message.start', $events[1]->getName());
-        $data = $events[1]->getData();
+        $this->assertSame('Processor.message.start', $eventsList[1]->getName());
+        $data = $eventsList[1]->getData();
         $this->assertArrayHasKey('message', $data);
         $this->assertSame($message->jsonSerialize(), $data['message']->jsonSerialize());
 
-        $this->assertSame($dispatchedEvent, $events[2]->getName());
-        $data = $events[2]->getData();
+        $this->assertSame($dispatchedEvent, $eventsList[2]->getName());
+        $data = $eventsList[2]->getData();
         $this->assertArrayHasKey('message', $data);
         $this->assertSame($message->jsonSerialize(), $data['message']->jsonSerialize());
 
@@ -121,12 +151,14 @@ class ProcessorTest extends TestCase
         ];
         $connectionFactory = new NullConnectionFactory();
         $context = $connectionFactory->createContext();
-        $queueMessage = new NullMessage(json_encode($messageBody));
+        $queueMessage = new NullMessage((string)json_encode($messageBody));
 
         $events = new EventList();
         $logger = new ArrayLog();
         $processor = new Processor($logger);
-        $processor->getEventManager()->setEventList($events);
+        /** @var \Cake\Event\EventManager $eventManager */
+        $eventManager = $processor->getEventManager();
+        $eventManager->setEventList($events);
 
         $result = $processor->process($queueMessage, $context);
         $this->assertSame(InteropProcessor::REJECT, $result);
@@ -137,8 +169,9 @@ class ProcessorTest extends TestCase
         $this->assertStringContainsString('Invalid callable for message. Rejecting message from queue', $logs[0]);
 
         $this->assertSame(2, $events->count());
-        $this->assertSame('Processor.message.seen', $events[0]->getName());
-        $this->assertSame('Processor.message.invalid', $events[1]->getName());
+        $eventsList = $this->eventListToArray($events);
+        $this->assertSame('Processor.message.seen', $eventsList[0]->getName());
+        $this->assertSame('Processor.message.invalid', $eventsList[1]->getName());
     }
 
     /**
@@ -156,20 +189,23 @@ class ProcessorTest extends TestCase
         ];
         $connectionFactory = new NullConnectionFactory();
         $context = $connectionFactory->createContext();
-        $queueMessage = new NullMessage(json_encode($messageBody));
+        $queueMessage = new NullMessage((string)json_encode($messageBody));
 
         $events = new EventList();
         $logger = new ArrayLog();
         $processor = new Processor($logger);
-        $processor->getEventManager()->setEventList($events);
+        /** @var \Cake\Event\EventManager $eventManager */
+        $eventManager = $processor->getEventManager();
+        $eventManager->setEventList($events);
 
         $result = $processor->process($queueMessage, $context);
         $this->assertEquals(InteropProcessor::REQUEUE, $result);
 
         // Verify timing information is present in exception event
         $this->assertSame(3, $events->count());
-        $this->assertSame('Processor.message.exception', $events[2]->getName());
-        $data = $events[2]->getData();
+        $eventsList = $this->eventListToArray($events);
+        $this->assertSame('Processor.message.exception', $eventsList[2]->getName());
+        $data = $eventsList[2]->getData();
         $this->assertArrayHasKey('duration', $data);
         $this->assertIsInt($data['duration']);
         $this->assertGreaterThanOrEqual(0, $data['duration']);
@@ -193,11 +229,13 @@ class ProcessorTest extends TestCase
         ];
         $connectionFactory = new NullConnectionFactory();
         $context = $connectionFactory->createContext();
-        $queueMessage = new NullMessage(json_encode($messageBody));
+        $queueMessage = new NullMessage((string)json_encode($messageBody));
         $processor = new Processor();
 
         $result = $processor->process($queueMessage, $context);
-        $logs = Log::engine('debug')->read();
+        /** @var \Cake\Log\Engine\ArrayLog $debugLog */
+        $debugLog = Log::engine('debug');
+        $logs = $debugLog->read();
         Log::drop('debug');
 
         $this->assertCount(1, $logs);
@@ -219,12 +257,12 @@ class ProcessorTest extends TestCase
         ];
         $connectionFactory = new NullConnectionFactory();
         $context = $connectionFactory->createContext();
-        $queueMessage = new NullMessage(json_encode($messageBody));
+        $queueMessage = new NullMessage((string)json_encode($messageBody));
         $message = new Message($queueMessage, $context);
         $processor = new Processor();
 
         $result = $processor->processMessage($message);
         $this->assertSame(InteropProcessor::ACK, $result);
-        $this->assertNotEmpty(TestProcessor::$lastProcessMessage);
+        $this->assertInstanceOf(Message::class, TestProcessor::$lastProcessMessage);
     }
 }
