@@ -318,8 +318,8 @@ class QueueManager
     /**
      * Recursively sort an array by key
      *
-     * @param array $data The data to sort
-     * @return array The sorted array
+     * @param array<string, mixed> $data The data to sort
+     * @return array<string, mixed> The sorted array
      */
     protected static function sortUniqueValues(array $data): array
     {
@@ -328,6 +328,7 @@ class QueueManager
                 $data[$key] = static::sortUniqueValues($value);
             }
         }
+
         ksort($data);
 
         return $data;
