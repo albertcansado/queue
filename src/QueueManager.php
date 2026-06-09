@@ -304,7 +304,7 @@ class QueueManager
      */
     public static function getUniqueId(string $class, string $method, array $data): string
     {
-        sort($data);
+        $data = static::sortUniqueValues($data);
 
         $hashInput = implode('', [
             $class,
@@ -313,5 +313,24 @@ class QueueManager
         ]);
 
         return hash('md5', $hashInput);
+    }
+
+    /**
+     * Recursively sort an array by key
+     *
+     * @param array<string, mixed> $data The data to sort
+     * @return array<string, mixed> The sorted array
+     */
+    protected static function sortUniqueValues(array $data): array
+    {
+        foreach ($data as $key => $value) {
+            if (is_array($value)) {
+                $data[$key] = static::sortUniqueValues($value);
+            }
+        }
+
+        ksort($data);
+
+        return $data;
     }
 }

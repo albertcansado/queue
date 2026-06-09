@@ -59,6 +59,42 @@ class QueueManagerTest extends TestCase
         array_map('unlink', glob($this->fsQueuePath . DS . '*'));
     }
 
+    public function testGetUniqueId()
+    {
+        $first = QueueManager::getUniqueId('Example', 'hello', [1, 2, 3]);
+        $second = QueueManager::getUniqueId('Example', 'hello', [3, 2, 1]);
+        $this->assertNotEquals($first, $second, 'values are sorted by key');
+
+        $second = QueueManager::getUniqueId('Human', 'hello', [3, 2, 1]);
+        $this->assertNotEquals($first, $second, 'class changes hash');
+
+        $second = QueueManager::getUniqueId('Example', 'bye', [3, 2, 1]);
+        $this->assertNotEquals($first, $second, 'method changes hash');
+
+        $first = QueueManager::getUniqueId('Example', 'hello', ['user_id' => 'admin', 'role' => 'guest']);
+        $second = QueueManager::getUniqueId('Example', 'hello', ['user_id' => 'admin', 'role' => 'guest']);
+        $this->assertSame($first, $second, 'same values and keys are the same');
+
+        $second = QueueManager::getUniqueId('Example', 'hello', ['role' => 'guest', 'user_id' => 'admin']);
+        $this->assertSame($first, $second, 'reordered keys are the same');
+
+        $first = QueueManager::getUniqueId('Example', 'hello', ['user_id' => 'admin', 'role' => 'guest']);
+        $second = QueueManager::getUniqueId('Example', 'hello', ['user_id' => 'admin', 'role' => 'admin']);
+        $this->assertNotEquals($first, $second, 'different values are distinct');
+
+        $first = QueueManager::getUniqueId('Example', 'hello', ['foo' => 'admin', 'bar' => 'guest']);
+        $second = QueueManager::getUniqueId('Example', 'hello', ['user_id' => 'admin', 'role' => 'guest']);
+        $this->assertNotEquals($first, $second, 'different keys, same values are distinct');
+
+        $first = QueueManager::getUniqueId('Example', 'hello', ['foo' => 'foo', 'bar' => 'foo']);
+        $second = QueueManager::getUniqueId('Example', 'hello', ['user_id' => 'admin', 'role' => 'guest']);
+        $this->assertNotEquals($first, $second, 'different keys and values, are distinct');
+
+        $first = QueueManager::getUniqueId('Example', 'hello', ['arr' => ['a' => 1, 'b' => 2]]);
+        $second = QueueManager::getUniqueId('Example', 'hello', ['arr' => ['b' => 2, 'a' => 1]]);
+        $this->assertEquals($first, $second, 'nested arrays are sorted too');
+    }
+
     public function testSetConfig()
     {
         QueueManager::setConfig('test', [
